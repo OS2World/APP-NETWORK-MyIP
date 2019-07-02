@@ -1,0 +1,17 @@
+/$errors.tmp
+/*.dmp
+/*.err
+/*.exe
+/*.lk1
+/*.log
+/*.map
+/*.mk1
+/*.obj
+/*.sym
+/*.vtg
+/ProcessArgs.c
+/axt
+/bldlevel.txt
+/c.cfg
+/myip.cfg.irouter
+/tmp.txt

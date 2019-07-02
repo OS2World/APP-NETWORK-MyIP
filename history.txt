@@ -1,0 +1,48 @@
+v0.07
+20190331
+  fixed
+  - some more string overflow crashes
+
+  added
+  - reading second line in server response, needed for ip.os2.org since a while
+  (see https://www.os2.org/viewtopic.php?f=8&t=971&p=6437&hilit=myip#p6437)
+  - Readme.md
+
+  changed
+  - some debug output
+  - from svn to git and upload to https://bitbucket.org/Andi_B/myip/
+
+v0.06
+20xxxx
+  fixed
+  - some more string overflow checking
+  - debug output of server response
+  - do not try to ping server if no one is configured
+
+  added
+  - server name in error message
+  - ip.os2.org/checkip/ server in .cfg
+
+v0.05
+20120518
+  fixed
+  - trap for very long server responses
+  - trap with 0 repetition time and non valid server response
+  - trying to connect to all configured servers instead only the first
+
+  added
+  - exceptq handler
+
+v0.04
+20110731
+  fixed
+  - __DEBUG_PMPRINTF_LEVEL2__ code
+  - fixed crash when no log file is specified
+  - removed \n from 'Could not resolve host...' message
+
+  added
+  - querys to ping server between IP querys
+
+  changed
+  - valid range for /r
+  - stack size to 64k

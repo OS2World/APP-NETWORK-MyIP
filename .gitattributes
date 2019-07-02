@@ -1,0 +1,4 @@
+* text=auto !eol
+/MyIP.xqs -text
+/PMPRINTF.LIB -text
+/Wat_MyIP.xqs -text

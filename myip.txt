@@ -1,0 +1,204 @@
+MYIP.EXE
+
+  MYIP is a simple TCP/IP utility for querying the current system's IP address
+  **as seen by the outside world**.  This may or may not be the same as the
+  locally-configured IP address, depending on how the system is connected to
+  the Internet.
+
+  When run, MYIP contacts a special website which provides an 'IP echo'
+  service: this service reports the IP address of your computer as the remote
+  server sees it.  This allows you to determine your public IP address even if
+  you are connecting through a firewall or router that uses port-level network
+  address translation (also known as IP masquerading or IP address sharing).
+
+  Obviously, this requires that an IP echo website actually be available.  The
+  default configuration file provided (MYIP.CFG) contains two which seem to
+  work reasonably well.
+  
+  Since version 0.03 MYIP can be used for constantly monitoring your internet
+  connection and log result to a log file. This is especially useful with 
+  dynamic IP addresses. Running MYIP from your startup folder gives a nice log
+  of all you assigned IP addresses over time. Additionally connection problems
+  can be traced. My main reason to extend Alex version.
+
+  MYIP requires a 32-bit TCP/IP stack: in other words, MPTS v5.3 (WR*8600) or
+  higher.
+
+
+INSTALLATION
+
+  Copy MYIP.CFG to the directory indicated by the environment variable 'ETC'
+  (e.g. C:\MPTN\ETC) or use -f command line option.  You may edit this file to
+  modify the list of available echo sites if you wish; the format is documented
+  below.
+
+  Place MYIP.EXE somewhere in the PATH.
+  
+  Try sample.cmd
+
+
+USAGE
+
+  To use the program normally, simply run MYIP.EXE with no parameters.  The
+  program will attempt to contact the first site defined in MYIP.CFG and use
+  it to query your IP address.  If one site fails, MYIP will try the next site
+  listed, up to a maximum of three sites.
+
+  Since version 0.03 MyIP supports a number of additional options. Arguments
+  can be specified in any order and are case sensitive. A sample script
+  sample.cmd is included which calls MyIP with reasonable arguments to
+  constantly monitor your IP connection and logs into a file.
+
+  Be aware about the standard TCP/IP timeouts especially when there's no
+  connection to the defined servers. It can take minutes till the <ESC> key is
+  honored. Usually ESC is checked every -r seconds.
+
+  MYIP accepts the following arguments:
+
+    -d or -v:
+        debug output
+
+    -D or -V:
+        even more debug output
+
+    -r <1-3600>:
+        Check every specified number of seconds for your IP. Useful when you
+        constantly want to monitor (or log) your IP. Some IP echo servers do
+        not allow to much requests within a short time. So check your echo
+        servers web site and do not make -r values too small. Usually a good 
+        starting point is not less than five minutes (>= 300). If you need 
+        constant connection monitoring use a ping server (-p option introduced
+        with 0.04). 
+
+    -c <0-3600>:
+        Output only when result differs from last output. But at least every
+        specified multiple of r. Use '-r2' and '-c 1800' to output at least
+        once a hour. Most useful when logging to a file to limit the number of
+        entries and disk activities.
+
+    -f <filename>:
+        Configuration file. Default configuration file 'MyIP.cfg' is searched in
+        the directory where your ETC enviroment variable points to. Use
+        'echo %ETC%' to find out your current path or specify a different file
+        with -f
+
+    -l <filename>:
+        Write output to the specified log file too.
+
+    -t <0-2>:
+        Add timestamp to output
+        0...no time info at all
+        1...YYYY-MM-DD HH:MM:SS in front of IP address
+        2...YYYYMMDD HH:MM:SS in front of IP address
+
+    -s "text":
+        Add text to output. "text" is printed in front of IP address but after
+        timestamp. Default is one space. Enclose text with "" if text contains
+        spaces.
+        
+    -p <1-300>:
+    	Number of seconds between checking the ping server. Since many IP echo
+    	servers do not allow a lot of request within a short period -p option 
+    	gives the opportunity to check the connection with a ping requests 
+    	between IP echo server request. If a server is configured for echoing
+    	to ping requests it's usually no problem to ping it every couple of 
+    	seconds. Ping servers are configured along with IP echo servers in the
+    	.cfg file. See the sample myip.cfg file.   
+
+    -h or -?:
+        Display help.
+
+
+HOW IT WORKS
+
+  MYIP works by simply opening an HTTP connection to the designated server,
+  using the URL and port indicated, and attempting to parse the IP address from
+  a designated point in the returned data.  Therefore, the site in question
+  must be designed to return the correct IP address in the expected format.
+
+  MYIP will read a maximum of 4 kilobytes (4096 bytes) from the returned data;
+  this is an intentional limitation implemented for safety reasons.
+  
+  When -p option is specified requests to a ping server are made too. If the
+  ping do not time out a valid internet connection is considered. Beaware not
+  all server in the internet answeres to pings. You can test this with the 
+  command line ping command.
+
+
+CONFIGURATION FILE FORMAT
+
+  Each non-comment, non-blank line in MYIP.CFG defines a single website.
+  Leading and trailing whitespace is ignored. Lines starting with the word
+  'ping' defines ping servers. The format of each entry is:
+
+  <server> <port> <path> <text> 	for IP echo servers and
+  ping <server> <port> 				for ping servers
+  
+  Where:
+    <server> is the hostname or IP address of the server
+    <port>   is the IP port (normally 80) to connect on
+    <path>   is the path to the site on the server which provides the IP echo
+             service
+    <text>   is the text within the returned data, following which MYIP will
+             attempt to parse the IP address
+
+  MYIP will only make use of the first ten IP echo servers that it successfully
+  parses from this file and the first 2 ping servers.  Blank lines, as well as
+  those starting with ';' or '#', are ignored.
+
+
+COMPILING
+    v0.03 and up are build with OpenWatcom 1.8. I've included a makefile which
+    runs perfectly well with wmake. I've not tested other make utilities but 
+    they should work with little modifications. As I work with VisualSlickEdit 
+    the vs.vpj is included too. vs_make.cmd is what is called with F5 (bound 
+    to build) from within VS. If the OpenWatcom enviroment is set up correctly wmake 
+    builds from a command prompt.
+
+    Debug builds define __DEBUG_PMPRINTF__ and link against pmprintf.lib. You
+    need the pmprintf package (at least pmprintf.h and pmprintf.lib) to build a
+    debug version and pmprintf.dll to run it. Release versions should work
+    without this.
+
+    IBM VACC do not support __VA_ARGS__ so debug builds can not make without
+    changes in the sources. Though release builds should compile without
+    modifications.
+    
+    mapxqs.exe (v1.0 - (C)2010-2011  R L Walsh or newer) is required. It is 
+    installed automatically with recent eCS systems. 
+    
+    wat2map.cmd (v 1.2 2002/04/26 23:09:44 smilcke with Stevens fixes '05 Jul 05 
+    SHL') is required too. It can be found in different netlabs svn repositories 
+    f.i. uniaud. Alternatively Steven Levines mapsymw.pl perl script can be 
+    used. But there are some problems with different perl5 builds. See 
+    http://groups.google.com/group/comp.os.os2.programmer.misc/browse_thread/
+    thread/1f43b4bc3a6babb6#
+
+NOTICES
+
+  MYIP is (C) 2006 Alex Taylor. Version 0.03 and up are made by 
+  Andreas Buchinger
+
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program; if not, write to the Free Software
+    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+
+  MYIP was inspired by the REXX program "GetMyIP" by Peter LÅersen, from which
+  much of the logic was obtained.
+
+--
+Alex Taylor
+http://www.cs-club.org/~alex
+
+Andreas Buchinger
+http://members.aon.at/buchinger/
